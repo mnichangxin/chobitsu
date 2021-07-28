@@ -5,6 +5,7 @@
   "rules": {
     "object-literal-sort-keys": false,
     "only-arrow-functions": false,
+    "no-unused-expression": false,
     "no-shadowed-variable": false,
     "member-access": false,
     "max-classes-per-file": false,

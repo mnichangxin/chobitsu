@@ -1,6 +1,6 @@
 {
-  "name": "chobitsu",
-  "version": "0.2.2",
+  "name": "@mnichangxin/chobitsu",
+  "version": "0.1.0",
   "description": "Chrome devtools protocol JavaScript implementation",
   "main": "dist/chobitsu.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/liriliri/chobitsu.git"
+    "url": "git+https://github.com/mnichangxin/chobitsu.git"
   },
   "keywords": [
     "devtools"
@@ -21,9 +21,9 @@
   "author": "redhoodsu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/liriliri/chobitsu/issues"
+    "url": "https://github.com/mnichangxin/chobitsu/issues"
   },
-  "homepage": "https://github.com/liriliri/chobitsu#readme",
+  "homepage": "https://github.com/mnichangxin/chobitsu#readme",
   "dependencies": {},
   "devDependencies": {
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",

@@ -38,6 +38,9 @@ class Chobitsu {
   domain(name: string) {
     return this.domains.get(name);
   }
+  trigger(method: string, params: any) {
+    connector.trigger(method, params);
+  }
   setOnMessage(onMessage: OnMessage) {
     this.onMessage = onMessage;
   }
@@ -75,10 +78,20 @@ class Chobitsu {
 
     connector.emit('message', JSON.stringify(resultMsg));
   }
-  private initDomains() {
+  registerMethod(methodName: string, fn: any) {
+    if (methods[methodName]) {
+      throw Error(`${methodName} is registered!`);
+    } else {
+      methods[methodName] = fn;
+      this._addMethods({
+        [methodName]: fn,
+      });
+    }
+  }
+  private _addMethods(methodObj: any) {
     const domains = this.domains;
 
-    each(methods, (fn: any, key: string) => {
+    each(methodObj, (fn: any, key: string) => {
       const [name, method] = key.split('.');
       let domain = domains.get(name);
       if (!domain) {
@@ -88,6 +101,9 @@ class Chobitsu {
       domain[method] = fn;
       domains.set(name, domain);
     });
+  }
+  private initDomains() {
+    this._addMethods(methods);
   }
   private async callMethod(method: string, params: any) {
     if (methods[method]) {

@@ -17,6 +17,7 @@ import each from 'licia/each';
 import toArr from 'licia/toArr';
 import xpath from 'licia/xpath';
 import concat from 'licia/concat';
+import { ElementRequest } from '../lib/request';
 
 export function collectClassNamesFromSubtree(params: any) {
   const node = getNode(params.nodeId);
@@ -33,7 +34,7 @@ export function collectClassNamesFromSubtree(params: any) {
   });
 
   return {
-    classNames: unique(classNames),
+    classNames: unique(classNames)
   };
 }
 
@@ -55,8 +56,8 @@ export function enable() {
 export function getDocument() {
   return {
     root: stringifyNode.wrap(document, {
-      depth: 2,
-    }),
+      depth: 2
+    })
   };
 }
 
@@ -64,7 +65,7 @@ export function getOuterHTML(params: any) {
   const node = getNode(params.nodeId);
 
   return {
-    outerHTML: node.outerHTML,
+    outerHTML: node.outerHTML
   };
 }
 
@@ -125,7 +126,7 @@ export function performSearch(params: any) {
 
   return {
     searchId,
-    resultCount: result.length,
+    resultCount: result.length
   };
 }
 
@@ -145,7 +146,7 @@ export function getSearchResults(params: any) {
   });
 
   return {
-    nodeIds,
+    nodeIds
   };
 }
 
@@ -167,7 +168,7 @@ export function pushNodesToFrontend(node: any) {
     const nodeId = getNodeId(node);
     connector.trigger('DOM.setChildNodes', {
       parentId: nodeId,
-      nodes: stringifyNode.getChildNodes(node, 1),
+      nodes: stringifyNode.getChildNodes(node, 1)
     });
   }
 
@@ -180,7 +181,7 @@ export function discardSearchResults(params: any) {
 
 export function pushNodesByBackendIdsToFrontend(params: any) {
   return {
-    nodeIds: params.backendNodeIds,
+    nodeIds: params.backendNodeIds
   };
 }
 
@@ -196,7 +197,7 @@ export function requestChildNodes(params: any) {
 
   connector.trigger('DOM.setChildNodes', {
     parentId: nodeId,
-    nodes: stringifyNode.getChildNodes(node, depth),
+    nodes: stringifyNode.getChildNodes(node, depth)
   });
 }
 
@@ -204,7 +205,7 @@ export function requestNode(params: any) {
   const node = stringifyObj.getObj(params.objectId);
 
   return {
-    nodeId: getNodeId(node),
+    nodeId: getNodeId(node)
   };
 }
 
@@ -212,7 +213,7 @@ export function resolveNode(params: any) {
   const node = getNode(params.nodeId);
 
   return {
-    object: stringifyObj.wrap(node),
+    object: stringifyObj.wrap(node)
   };
 }
 
@@ -280,13 +281,13 @@ mutationObserver.on('attributes', (target: any, name: string) => {
   if (isNull(value)) {
     connector.trigger('DOM.attributeRemoved', {
       nodeId,
-      name,
+      name
     });
   } else {
     connector.trigger('DOM.attributeModified', {
       nodeId,
       name,
-      value,
+      value
     });
   }
 });
@@ -295,17 +296,31 @@ mutationObserver.on(
   'childList',
   (target: Node, addedNodes: NodeList, removedNodes: NodeList) => {
     const parentNodeId = getNodeId(target);
+    if (!isEmpty(addedNodes)) {
+      for (let i = 0, len = addedNodes.length; i < len; i++) {
+        const node = addedNodes[i] as HTMLImageElement;
+        if (!node || !node.tagName) {
+          continue;
+        }
+        const tagName = node.tagName.toLowerCase();
+        if (['script', 'img'].includes(tagName)) {
+          const url = node.src || node.getAttribute('src');
+          if (url) {
+            new ElementRequest(node, url);
+          }
+        }
+      }
+    }
     if (!parentNodeId) return;
 
     function childNodeCountUpdated() {
       connector.trigger('DOM.childNodeCountUpdated', {
         childNodeCount: stringifyNode.wrap(target, {
-          depth: 0,
+          depth: 0
         }).childNodeCount,
-        nodeId: parentNodeId,
+        nodeId: parentNodeId
       });
     }
-
     if (!isEmpty(addedNodes)) {
       childNodeCountUpdated();
       for (let i = 0, len = addedNodes.length; i < len; i++) {
@@ -314,10 +329,10 @@ mutationObserver.on(
         const previousNodeId = previousNode ? getNodeId(previousNode) : 0;
         const params: any = {
           node: stringifyNode.wrap(node, {
-            depth: 0,
+            depth: 0
           }),
           parentNodeId,
-          previousNodeId,
+          previousNodeId
         };
 
         connector.trigger('DOM.childNodeInserted', params);
@@ -334,7 +349,7 @@ mutationObserver.on(
         }
         connector.trigger('DOM.childNodeRemoved', {
           nodeId: getNodeId(node),
-          parentNodeId,
+          parentNodeId
         });
       }
     }
@@ -347,6 +362,6 @@ mutationObserver.on('characterData', (target: Node) => {
 
   connector.trigger('DOM.characterDataModified', {
     characterData: target.nodeValue,
-    nodeId,
+    nodeId
   });
 });
